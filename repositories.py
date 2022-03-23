@@ -1,16 +1,26 @@
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+def add_hero(name: str, birthday: str, tribe: str, side: str, power: int) -> int:
+    """Adds hero to the database"""
+    pass
 
-from models import Base, Hero
 
-engine = create_engine('sqlite:///:memory:', echo=True)
+def add_moto(hero_id: int, moto: str) -> None:
+    """Adds new motto to the database"""
+    pass
 
-Base.metadata.create_all(engine)
-Session = sessionmaker(bind=engine)
-session = Session()
 
-Eloy = Hero(name='Eloy', tribe='Nora', power=0, side='WhiteCarcha')
-session.add(Eloy)
-session.commit()
+def add_story(hero_id: int, story: str) -> None:
+    """Adds story to hero. If story exists, throws an Exception"""
+    pass
 
-print(session.query(Hero).get(1))
+
+def delete_hero(hero_id) -> None:
+    """Deletes hero from table. With hero deletes users story and all mottos"""
+    pass
+
+
+def add_battle() -> None:
+    """Randomly chooses heroes from sides, their mottos and winners"""
+    pass
+
+
+
