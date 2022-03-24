@@ -56,6 +56,9 @@ class Story(Base):
 
     hero = relationship('Hero', back_populates='story')
 
+    def __repr__(self):
+        return f'{self.hero_id}:{self.story}'
+
 
 class Motto(Base):
     """A class to store heroes mottos"""
@@ -67,3 +70,6 @@ class Motto(Base):
     motto = Column(String(255), unique=True, nullable=False)
 
     hero = relationship('Hero', back_populates='mottos')
+
+    def __repr__(self):
+        return f'{self.hero_id}:{self.motto_id}:{self.motto}'
