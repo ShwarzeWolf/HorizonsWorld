@@ -3,7 +3,7 @@ from sqlalchemy.orm import sessionmaker
 
 from models import Base, Hero, Story
 
-engine = create_engine('sqlite:///:memory:', echo=True)
+engine = create_engine('postgresql://postgres_user:rootroot@localhost:5000/horizons_world')
 
 Base.metadata.create_all(engine)
 Session = sessionmaker(bind=engine)
