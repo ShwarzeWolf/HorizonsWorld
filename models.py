@@ -1,58 +1,69 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, Table
+import enum
+
+from sqlalchemy import Column, Integer, String, ForeignKey, Date, Enum, Text, Table
 from sqlalchemy.orm import declarative_base, relationship
 
 Base = declarative_base()
 
 
-class Battle(Base):
-    __tablename__ = 'battles'
+class Sides(enum.Enum):
+    """Enum to store sides names from horizons world"""
+    WHITE_CARCHA = 0
+    DARK_CARCHA = 1
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    hero_id_1 = Column(Integer, ForeignKey('heroes.id'))
-    hero_id_2 = Column(Integer, ForeignKey('heroes.id'))
-    moto_1_id = Column(Integer, ForeignKey('motos.id'))
-    moto_2_id = Column(Integer, ForeignKey('motos.id'))
-    winner = Column(Integer)
+
+Battle = Table(
+    'battles', Base.metadata,
+    Column('id', Integer, primary_key=True, autoincrement=True),
+    Column('hero_1_id', Integer, ForeignKey('heroes.id')),
+    Column('hero_2_id', Integer, ForeignKey('heroes.id')),
+    Column('motto_1_id', Integer, ForeignKey('mottos.id')),
+    Column('motto_2_id', Integer, ForeignKey('mottos.id')),
+    Column('winner', Integer, nullable=False))
 
 
 class Hero(Base):
+    """A Base class to story info about main heroes"""
     __tablename__ = 'heroes'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String, nullable=False, unique=True)
-    birthday = Column(String)
-    tribe = Column(String)
-    side = Column(String, nullable=False)
+    name = Column(String(50), nullable=False)
+    birthday = Column(Date())
+    tribe = Column(String(50))
+    side = Column(Enum(Sides), nullable=False)
     power = Column(Integer)
 
     story = relationship('Story', back_populates='hero', uselist=False)
-    mottos = relationship('Moto', back_populates='hero')
+    mottos = relationship('Motto', back_populates='hero')
+    battles = relationship('Hero', secondary=Battle,
+                           primaryjoin=id == Battle.c.hero_1_id,
+                           secondaryjoin=id == Battle.c.hero_2_id,
+                           )
 
     def __repr__(self):
-        return f'{self.__class__.__name__}:{self.id}:{self.name}'
+        return f'{self.__class__.__name__}:{self.id}:{self.name}:{self.side}\n' \
+               f'birthday: {self.birthday}\n' \
+               f'tribe: {self.tribe}\n'
 
 
 class Story(Base):
+    """A class to store short story of hero life, without spoilers"""
     __tablename__ = 'stories'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    story = Column(String, unique=True)
+    story = Column(Text, unique=True)
     hero_id = Column(Integer, ForeignKey('heroes.id'))
 
     hero = relationship('Hero', back_populates='story')
 
 
-class Moto(Base):
-    __tablename__ = 'motos'
+class Motto(Base):
+    """A class to store heroes mottos"""
+    __tablename__ = 'mottos'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     hero_id = Column(Integer, ForeignKey('heroes.id'))
-    moto_id = Column(Integer, nullable=False)
-    moto = Column(String, unique=True)
+    motto_id = Column(Integer, nullable=False)
+    motto = Column(String(255), unique=True, nullable=False)
 
     hero = relationship('Hero', back_populates='mottos')
-
-
-
-
-
