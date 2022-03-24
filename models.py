@@ -12,14 +12,15 @@ class Sides(enum.Enum):
     DARK_CARCHA = 1
 
 
-Battle = Table(
-    'battles', Base.metadata,
-    Column('id', Integer, primary_key=True, autoincrement=True),
-    Column('hero_1_id', Integer, ForeignKey('heroes.id')),
-    Column('hero_2_id', Integer, ForeignKey('heroes.id')),
-    Column('motto_1_id', Integer, ForeignKey('mottos.id')),
-    Column('motto_2_id', Integer, ForeignKey('mottos.id')),
-    Column('winner', Integer, nullable=False))
+class Battle(Base):
+    __tablename__ = 'battles'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    hero_id_1 = Column(Integer, ForeignKey('heroes.id'))
+    hero_id_2 = Column(Integer, ForeignKey('heroes.id'))
+    motto_id_1 = Column(Integer, ForeignKey('mottos.id'))
+    motto_id_2 = Column(Integer, ForeignKey('mottos.id'))
+    winner = Column(Integer)
 
 
 class Hero(Base):
@@ -35,10 +36,6 @@ class Hero(Base):
 
     story = relationship('Story', back_populates='hero', uselist=False)
     mottos = relationship('Motto', back_populates='hero')
-    battles = relationship('Hero', secondary=Battle,
-                           primaryjoin=id == Battle.c.hero_1_id,
-                           secondaryjoin=id == Battle.c.hero_2_id,
-                           )
 
     def __repr__(self):
         return f'{self.__class__.__name__}:{self.id}:{self.name}:{self.side}\n' \
@@ -51,7 +48,7 @@ class Story(Base):
     __tablename__ = 'stories'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    story = Column(Text, unique=True)
+    story = Column(Text)
     hero_id = Column(Integer, ForeignKey('heroes.id'))
 
     hero = relationship('Hero', back_populates='story')

@@ -72,10 +72,11 @@ def add_battle() -> None:
 
     winner = random.choice([0, 1, 2])
 
-    query = Battle.insert().values(hero_1_id=first_warrior.id,
-                                   hero_2_id=second_warrior.id,
-                                   motto_1_id=first_warrior_motto.motto_id,
-                                   motto_2_id=second_warrior_motto.motto_id,
-                                   winner=winner)
-    session.execute(query)
+    new_battle = Battle(hero_id_1=first_warrior.id,
+                        hero_id_2=second_warrior.id,
+                        motto_id_1=first_warrior_motto.motto_id,
+                        motto_id_2=second_warrior_motto.motto_id,
+                        winner=winner)
+
+    session.add(new_battle)
     session.commit()
