@@ -6,7 +6,7 @@ from sqlalchemy.orm import sessionmaker
 from models import Base, Sides
 from repositories import add_motto, add_story, add_battle, delete_hero, add_hero
 
-engine = create_engine('postgresql+psycopg2://postgres_user:rootroot@localhost:5000/horizons_world', echo=True)
+engine = create_engine('postgresql+psycopg2://postgres_user:rootroot@localhost:5000/horizons_world')
 
 Base.metadata.create_all(engine)
 Session = sessionmaker(bind=engine)

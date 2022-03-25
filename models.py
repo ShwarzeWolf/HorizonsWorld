@@ -17,11 +17,11 @@ class Battle(Base):
     __tablename__ = 'battles'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    hero_id_1 = Column(Integer)
-    hero_id_2 = Column(Integer)
-    motto_id_1 = Column(Integer)
-    motto_id_2 = Column(Integer)
-    winner = Column(Integer)
+    hero_id_1 = Column(Integer, nullable=False)
+    hero_id_2 = Column(Integer, nullable=False)
+    motto_id_1 = Column(Integer, nullable=False)
+    motto_id_2 = Column(Integer, nullable=False)
+    winner = Column(Integer, nullable=False)
 
     hero1 = relationship('Hero', foreign_keys=hero_id_1, primaryjoin='Battle.hero_id_1==Hero.id')
     hero2 = relationship('Hero', foreign_keys=hero_id_2, primaryjoin='Battle.hero_id_2==Hero.id')
@@ -45,9 +45,9 @@ class Hero(Base):
     mottos = relationship('Motto', back_populates='hero', cascade="all, delete-orphan")
 
     def __repr__(self):
-        return f'{self.__class__.__name__}:{self.id}:{self.name}:{self.side}\n' \
-               f'birthday: {self.birthday}\n' \
-               f'tribe: {self.tribe}\n'
+        return f'{self.__class__.__name__}:{self.id}:{self.name}|{self.side}|' \
+               f'birthday:{self.birthday}|' \
+               f'tribe:{self.tribe}'
 
 
 class Story(Base):
