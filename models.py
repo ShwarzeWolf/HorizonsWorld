@@ -13,14 +13,21 @@ class Sides(enum.Enum):
 
 
 class Battle(Base):
+    """A class to store battles"""
     __tablename__ = 'battles'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    hero_id_1 = Column(Integer, ForeignKey('heroes.id'))
-    hero_id_2 = Column(Integer, ForeignKey('heroes.id'))
-    motto_id_1 = Column(Integer, ForeignKey('mottos.id'))
-    motto_id_2 = Column(Integer, ForeignKey('mottos.id'))
+    hero_id_1 = Column(Integer)
+    hero_id_2 = Column(Integer)
+    motto_id_1 = Column(Integer)
+    motto_id_2 = Column(Integer)
     winner = Column(Integer)
+
+    hero1 = relationship('Hero', foreign_keys=hero_id_1, primaryjoin='Battle.hero_id_1==Hero.id')
+    hero2 = relationship('Hero', foreign_keys=hero_id_2, primaryjoin='Battle.hero_id_2==Hero.id')
+
+    motto1 = relationship('Motto', foreign_keys=motto_id_1, primaryjoin='Battle.motto_id_1==Motto.id')
+    motto2 = relationship('Motto', foreign_keys=motto_id_2, primaryjoin='Battle.motto_id_2==Motto.id')
 
 
 class Hero(Base):
@@ -34,8 +41,8 @@ class Hero(Base):
     side = Column(Enum(Sides), nullable=False)
     power = Column(Integer)
 
-    story = relationship('Story', back_populates='hero', uselist=False)
-    mottos = relationship('Motto', back_populates='hero')
+    story = relationship('Story', back_populates='hero', uselist=False, cascade="all, delete-orphan")
+    mottos = relationship('Motto', back_populates='hero', cascade="all, delete-orphan")
 
     def __repr__(self):
         return f'{self.__class__.__name__}:{self.id}:{self.name}:{self.side}\n' \

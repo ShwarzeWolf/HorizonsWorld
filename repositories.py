@@ -74,8 +74,8 @@ def add_battle() -> None:
 
     new_battle = Battle(hero_id_1=first_warrior.id,
                         hero_id_2=second_warrior.id,
-                        motto_id_1=first_warrior_motto.motto_id,
-                        motto_id_2=second_warrior_motto.motto_id,
+                        motto_id_1=first_warrior_motto.id,
+                        motto_id_2=second_warrior_motto.id,
                         winner=winner)
 
     session.add(new_battle)
