@@ -47,8 +47,14 @@ class DrawFilter(logging.Filter):
 root_logger.addFilter(DrawFilter())
 
 
+import typer
+
+app = typer.Typer(help="Small simulation for horizons_universe")
+
+
+@app.command()
 def add_hero(name: str,
-             side: Sides = Sides.SUN_CARCHA,
+             side: str = Sides.SUN_CARCHA.name,
              birthday: str = None,
              tribe: str = None,
              power: int = 0) -> None:
@@ -63,7 +69,9 @@ def add_hero(name: str,
     logging.info(f"Hero was created: {new_hero}")
 
 
-def add_motto(hero_id: int, motto: str) -> None:
+@app.command()
+def add_motto(hero_id: int,
+              motto: str) -> None:
     """Adds motto from hero to database"""
     hero = session.query(Hero).get(hero_id)
 
@@ -78,7 +86,9 @@ def add_motto(hero_id: int, motto: str) -> None:
         raise HeroNotFoundException
 
 
-def add_story(hero_id: int, story: str) -> None:
+@app.command()
+def add_story(hero_id: int,
+              story: str) -> None:
     """Adds story to hero. If story exists, overrides it"""
     hero = session.query(Hero).get(hero_id)
 
@@ -96,19 +106,31 @@ def add_story(hero_id: int, story: str) -> None:
         raise HeroNotFoundException
 
 
-def delete_hero(hero_id: int) -> None:
+@app.command()
+def delete_hero(hero_id: int,
+                force: bool = typer.Option(
+                    ...,
+                    prompt="Are you sure you want to delete this hero?",
+                    help="Force deletion without confirmation",
+                ),
+                ) -> None:
     """Deletes hero from table. With hero deletes users story and all mottos"""
+
     hero = session.query(Hero).get(hero_id)
 
     if hero:
-        session.delete(hero)
-        session.commit()
-        logging.info(f"Hero {hero_id} successfully deleted")
+        if force:
+            session.delete(hero)
+            session.commit()
+            logging.info(f"Hero {hero_id} successfully deleted")
+        else:
+            logging.debug(f"Deletion of {hero_id} cancelled")
     else:
         logging.warning(f"Hero {hero_id} doesn't exist - probably as you wanted")
 
 
-def add_battle() -> None:
+@app.command()
+def add_battle(number_of_battles = 1) -> None:
     """Randomly chooses heroes from sides, their mottos and winners"""
     first_warrior = session.query(Hero).order_by(functions.random()).first()
     second_warrior = session.query(Hero).filter(Hero.side != first_warrior.side).order_by(functions.random()).first()
@@ -118,17 +140,23 @@ def add_battle() -> None:
 
     winner = choose_winner(first_warrior, second_warrior)
 
-    new_battle = Battle(hero_id_1=first_warrior.id,
-                        hero_id_2=second_warrior.id,
-                        motto_id_1=first_warrior_motto.id,
-                        motto_id_2=second_warrior_motto.id,
-                        winner=winner)
+    for battle in range(number_of_battles):
+        new_battle = Battle(hero_id_1=first_warrior.id,
+                            hero_id_2=second_warrior.id,
+                            motto_id_1=first_warrior_motto.id,
+                            motto_id_2=second_warrior_motto.id,
+                            winner=winner)
 
-    session.add(new_battle)
-    session.commit()
+        session.add(new_battle)
+        session.commit()
+
     logging.info(f"Battle between {first_warrior.name} and {second_warrior.name} happened. Winner: {winner}")
 
 
 def choose_winner(hero_1: Hero, hero_2: Hero) -> int:
     """Chooses who will win in the battle"""
     return random.choice([0, 1, 2])
+
+
+if __name__ == "__main__":
+    app()
