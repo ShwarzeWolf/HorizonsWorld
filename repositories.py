@@ -1,22 +1,22 @@
 import logging
 import random
-from datetime import datetime
+from datetime import date
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql import functions
 
+from Exceptions import HeroNotFoundException
 from models import Hero, Sides, Motto, Story, Battle
 
-engine = create_engine('postgresql+psycopg2://postgres_user:rootroot@localhost:5000/horizons_world')
+engine = create_engine("postgresql+psycopg2://postgres_user:rootroot@localhost:5000/horizons_world")
 Session = sessionmaker(bind=engine)
 session = Session()
-
 
 logging.basicConfig(
     format="%(asctime)s => %(filename)s => %(levelname)s => %(message)s",
     datefmt="%Y-%m-%d %H:%M:%S",
-    filename='log.txt',
+    filename="log.txt",
     level=logging.DEBUG
 )
 
@@ -27,7 +27,7 @@ console_formatter = logging.Formatter("%(asctime)s => %(filename)s => %(levelnam
 console.setFormatter(console_formatter)
 
 # And also, to another file
-file = logging.FileHandler(filename='import_logs.txt')
+file = logging.FileHandler(filename="import_logs.txt")
 file.setLevel(logging.ERROR)
 file_formatter = logging.Formatter("%(asctime)s => %(filename)s => %(levelname)s => %(message)s")
 console.setFormatter(file_formatter)
@@ -41,27 +41,26 @@ root_logger.addHandler(file)
 
 class DrawFilter(logging.Filter):
     def filter(self, record):
-        return not(record.msg.startswith('Battle') and record.msg.endswith('0'))
+        return not (record.msg.startswith("Battle") and record.msg.endswith("0"))
 
 
 root_logger.addFilter(DrawFilter())
 
 
 def add_hero(name: str,
-             birthday: datetime,
-             tribe: str,
-             side: Sides,
-             power: int) -> None:
+             side: Sides = Sides.SUN_CARCHA,
+             birthday: str = None,
+             tribe: str = None,
+             power: int = 0) -> None:
     """Adds new hero to the database"""
+    if birthday:
+        birthday = date.fromisoformat(birthday)
+
     new_hero = Hero(name=name, birthday=birthday, tribe=tribe, side=side, power=power)
     session.add(new_hero)
     session.commit()
 
-    logging.info(f'Hero was created: {new_hero}')
-
-
-class HeroNotFoundException(Exception):
-    pass
+    logging.info(f"Hero was created: {new_hero}")
 
 
 def add_motto(hero_id: int, motto: str) -> None:
@@ -73,9 +72,9 @@ def add_motto(hero_id: int, motto: str) -> None:
         hero.mottos.append(Motto(motto_id=motto_id, motto=motto))
 
         session.commit()
-        logging.info(f'Motto {motto} for hero {hero_id} was added')
+        logging.info(f"Motto {motto} for hero {hero_id} was added")
     else:
-        logging.critical(f'Hero with id {hero_id} not found')
+        logging.critical(f"Hero with id {hero_id} not found")
         raise HeroNotFoundException
 
 
@@ -86,14 +85,14 @@ def add_story(hero_id: int, story: str) -> None:
     if hero:
         if hero.story:
             hero.story.story = story
-            logging.info(f'story {story} for hero {hero_id} was updated')
+            logging.info(f"story {story} for hero {hero_id} was updated")
         else:
             hero.story = Story(story=story)
-            logging.info(f'Story {story} for hero {hero_id} was added')
+            logging.info(f"Story {story} for hero {hero_id} was added")
 
         session.commit()
     else:
-        logging.critical(f'Hero with id {hero_id} not found')
+        logging.critical(f"Hero with id {hero_id} not found")
         raise HeroNotFoundException
 
 
@@ -104,9 +103,9 @@ def delete_hero(hero_id: int) -> None:
     if hero:
         session.delete(hero)
         session.commit()
-        logging.info(f'Hero {hero_id} successfully deleted')
+        logging.info(f"Hero {hero_id} successfully deleted")
     else:
-        logging.warning(f'Hero {hero_id} doesn\'t exist - probably as you wanted')
+        logging.warning(f"Hero {hero_id} doesn't exist - probably as you wanted")
 
 
 def add_battle() -> None:
@@ -114,10 +113,10 @@ def add_battle() -> None:
     first_warrior = session.query(Hero).order_by(functions.random()).first()
     second_warrior = session.query(Hero).filter(Hero.side != first_warrior.side).order_by(functions.random()).first()
 
-    first_warrior_motto = random.choice(first_warrior.mottos)
-    second_warrior_motto = random.choice(second_warrior.mottos)
+    first_warrior_motto = first_warrior.get_random_motto()
+    second_warrior_motto = second_warrior.get_random_motto()
 
-    winner = random.choice([0, 1, 2])
+    winner = choose_winner(first_warrior, second_warrior)
 
     new_battle = Battle(hero_id_1=first_warrior.id,
                         hero_id_2=second_warrior.id,
@@ -127,4 +126,9 @@ def add_battle() -> None:
 
     session.add(new_battle)
     session.commit()
-    logging.info(f'Battle between {first_warrior.name} and {second_warrior.name} happened. Winner: {winner}')
+    logging.info(f"Battle between {first_warrior.name} and {second_warrior.name} happened. Winner: {winner}")
+
+
+def choose_winner(hero_1: Hero, hero_2: Hero) -> int:
+    """Chooses who will win in the battle"""
+    return random.choice([0, 1, 2])
