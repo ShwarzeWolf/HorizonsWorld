@@ -12,24 +12,40 @@ engine = create_engine('postgresql+psycopg2://postgres_user:rootroot@localhost:5
 Session = sessionmaker(bind=engine)
 session = Session()
 
-# Требования к logging:
-#  - минимум 1 фильтр на события (например, не писать лог если бой закончился вничью).
-
-#  - один хендлер с отправкой части логов в консоль.
-#  - один хендлер с отправкой части логов в другой файл.
-#
-#  - НЕОБЯЗАТЕЛЬНО: хендлер с отправкой error & critical логов в телеграмм бота с помощью telegram api.
-#    Бот сразу пишет сообщение либо в группу, id которой указан в env, либо в личку пользователю, id которого указан в env. Я должен быть добавлен в эту группу: @rioran
 
 logging.basicConfig(
     format="%(asctime)s => %(filename)s => %(levelname)s => %(message)s",
     datefmt="%Y-%m-%d %H:%M:%S",
-    level=logging.INFO
+    filename='log.txt',
+    level=logging.DEBUG
 )
 
-#01:24:09
+# Error and critical logs we will write to console
 console = logging.StreamHandler()
 console.setLevel(logging.ERROR)
+console_formatter = logging.Formatter("%(asctime)s => %(filename)s => %(levelname)s => %(message)s")
+console.setFormatter(console_formatter)
+
+# And also, to another file
+file = logging.FileHandler(filename='import_logs.txt')
+file.setLevel(logging.ERROR)
+file_formatter = logging.Formatter("%(asctime)s => %(filename)s => %(levelname)s => %(message)s")
+console.setFormatter(file_formatter)
+
+# Getting root logger
+root_logger = logging.getLogger("")
+
+root_logger.addHandler(console)
+root_logger.addHandler(file)
+
+
+class DrawFilter(logging.Filter):
+    def filter(self, record):
+        return not(record.msg.startswith('Battle') and record.msg.endswith('0'))
+
+
+root_logger.addFilter(DrawFilter())
+
 
 def add_hero(name: str,
              birthday: datetime,
@@ -59,7 +75,7 @@ def add_motto(hero_id: int, motto: str) -> None:
         session.commit()
         logging.info(f'Motto {motto} for hero {hero_id} was added')
     else:
-        logging.critical(f'Hero not found')
+        logging.critical(f'Hero with id {hero_id} not found')
         raise HeroNotFoundException
 
 
@@ -77,7 +93,7 @@ def add_story(hero_id: int, story: str) -> None:
 
         session.commit()
     else:
-        logging.critical(f'Hero not found')
+        logging.critical(f'Hero with id {hero_id} not found')
         raise HeroNotFoundException
 
 
