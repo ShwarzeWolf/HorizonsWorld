@@ -12,8 +12,8 @@ fi
 
 if [ "$APP_ENV" = "development" ]
 then
-    echo "Creating the database tables..."
-    echo "Filling tables with data..."
+    echo "Creating the database, filling tables..."
+    python manage.py
     echo "Tables created and filled"
 fi
 
