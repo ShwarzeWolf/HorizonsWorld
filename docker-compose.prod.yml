@@ -1,0 +1,25 @@
+version: '3.8'
+services:
+  python:
+    container_name: python
+    build: ./src
+    volumes:
+      - ./src/:/usr/src/app/
+    ports:
+      - 3000:3000
+    env_file:
+      - .env.prod
+    depends_on:
+      - db
+  db:
+    image: 'bitnami/postgresql:12'
+    ports:
+      - '5000:5432'
+    volumes:
+      - 'postgres_data:/var/lib/postgresql/data/'
+    environment:
+      - POSTGRESQL_USERNAME=user
+      - POSTGRESQL_PASSWORD=rootroot
+      - POSTGRESQL_DATABASE=horizons_world
+volumes:
+  postgres_data:
