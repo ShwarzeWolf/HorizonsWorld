@@ -1,4 +1,6 @@
 #!/bin/bash
+echo "Initializing project..."
+
 if [ "$DATABASE" = "postgres" ]
 then
     echo "Waiting for postgres start..."

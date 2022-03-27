@@ -10,7 +10,10 @@ from logging_setup import logging
 from exceptions import HeroNotFoundException
 from models import Hero, Sides, Motto, Story, Battle
 
-engine = create_engine('postgresql+psycopg2://user:rootroot@db:5432/horizons_world_test')
+import os
+DB_URI = os.getenv("DATABASE_URL")
+
+engine = create_engine(DB_URI)
 Session = sessionmaker(bind=engine)
 session = Session()
 
