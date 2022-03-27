@@ -11,7 +11,7 @@ from exceptions import HeroNotFoundException
 from models import Hero, Sides, Motto, Story, Battle
 
 import os
-DB_URI = os.getenv("DATABASE_URL")
+DB_URI = os.getenv("DATABASE_URL", "postgresql+psycopg2://user:rootroot@127.0.0.1:5000/horizons_world_test")
 
 engine = create_engine(DB_URI)
 Session = sessionmaker(bind=engine)

@@ -15,6 +15,13 @@ fi
 if [ "$APP_ENV" = "development" ]
 then
     echo "Creating the database, filling tables..."
+    FILE=manage.py
+
+    while ! test -f "$FILE" ; do
+      echo "waiting for file"
+      sleep 1
+    done
+
     python manage.py
     echo "Tables created and filled"
 fi
