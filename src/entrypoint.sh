@@ -17,4 +17,8 @@ then
     echo "Tables created and filled"
 fi
 
+while true; do
+  sleep 1;
+  done
+
 exec "$@"
