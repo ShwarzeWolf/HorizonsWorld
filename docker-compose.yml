@@ -1,15 +1,25 @@
-version: '2'
+version: '3.8'
 services:
-  postgresql12:
+  python:
+    container_name: python
+    build: ./src
+    volumes:
+      - ./src/:/usr/src/app/
+    ports:
+      - 3000:3000
+    env_file:
+      - .env.dev
+    depends_on:
+      - db
+  db:
     image: 'bitnami/postgresql:12'
     ports:
       - '5000:5432'
     volumes:
-      - 'postgresql_data_12:/bitnami/postgresql12'
+      - 'postgres_data:/var/lib/postgresql/data/'
     environment:
-      - POSTGRESQL_USERNAME=postgres_user
+      - POSTGRESQL_USERNAME=user
       - POSTGRESQL_PASSWORD=rootroot
-      - POSTGRESQL_DATABASE=horizons_world
+      - POSTGRESQL_DATABASE=horizons_world_test
 volumes:
-  postgresql_data_12:
-    driver: local
+  postgres_data:

@@ -1,4 +1,11 @@
-Требования к README:
+# Horizons world
+
+## Database description 
  - краткие описания таблиц.
- - примеры как запускать докер на разных стейджингах.
+## How to build
+  - примеры как запускать докер на разных стейджингах.
+### development: docker
+### production: docker
+
+## how to run scripts
  - примеры как запускать python скрипты.
