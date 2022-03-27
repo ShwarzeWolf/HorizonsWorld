@@ -1,3 +1,4 @@
+import os
 from datetime import date
 from random import choice
 
@@ -6,11 +7,11 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql import functions
 
-from logging_setup import logging
 from exceptions import HeroNotFoundException
+from logging_setup import logging
 from models import Hero, Sides, Motto, Story, Battle
 
-import os
+# Getting db connection string, either from environment (for usage in docker) or default for development
 DB_URI = os.getenv("DATABASE_URL", "postgresql+psycopg2://user:rootroot@127.0.0.1:5000/horizons_world_test")
 
 engine = create_engine(DB_URI)
@@ -18,7 +19,7 @@ Session = sessionmaker(bind=engine)
 session = Session()
 
 # adding interface to work with command line
-app = typer.Typer(help="Small simulation for horizons_universe")
+app = typer.Typer(help="Small simulation for horizons universe")
 
 
 @app.command()
@@ -127,6 +128,26 @@ def choose_winner(hero_1: Hero, hero_2: Hero) -> int:
     return choice([0, 1, 2])
 
 
-if __name__ == '__main__':
+@app.command()
+def database_dump():
+    """Prints all data from database in console"""
+    print("Heroes:")
+    for hero in session.query(Hero).all():
+        print(hero)
+
+    print("\nMottos:")
+    for motto in session.query(Motto).all():
+        print(motto)
+
+    print("\nStories:")
+    for story in session.query(Story).all():
+        print(story)
+
+    print("\nBattles:")
+    for battle in session.query(Battle).all():
+        print(battle)
+
+
+if __name__ == "__main__":
     app()
 
