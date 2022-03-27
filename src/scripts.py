@@ -6,43 +6,9 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql import functions
 
-from .exceptions import HeroNotFoundException
-from .models import Sides, Hero, Motto, Story, Battle
-
-import logging
-
-logging.basicConfig(
-    format="%(asctime)s => %(filename)s => %(levelname)s => %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S",
-    filename="log.txt",
-    level=logging.DEBUG
-)
-
-# Error and critical logs we will write to console
-console = logging.StreamHandler()
-console.setLevel(logging.ERROR)
-console_formatter = logging.Formatter("%(asctime)s => %(filename)s => %(levelname)s => %(message)s")
-console.setFormatter(console_formatter)
-
-# And also, to another file
-file = logging.FileHandler(filename="important_logs.txt")
-file.setLevel(logging.ERROR)
-file_formatter = logging.Formatter("%(asctime)s => %(filename)s => %(levelname)s => %(message)s")
-console.setFormatter(file_formatter)
-
-# Getting root logger
-root_logger = logging.getLogger("")
-
-root_logger.addHandler(console)
-root_logger.addHandler(file)
-
-
-class DrawFilter(logging.Filter):
-    def filter(self, record):
-        return not (record.msg.startswith("Battle") and record.msg.endswith("0"))
-
-
-root_logger.addFilter(DrawFilter())
+from logging_setup import logging
+from exceptions import HeroNotFoundException
+from models import Hero, Sides, Motto, Story, Battle
 
 engine = create_engine('postgresql+psycopg2://user:rootroot@db:5432/horizons_world_test')
 Session = sessionmaker(bind=engine)
@@ -157,4 +123,7 @@ def choose_winner(hero_1: Hero, hero_2: Hero) -> int:
     """Chooses who will win in the battle"""
     return choice([0, 1, 2])
 
+
+if __name__ == '__main__':
+    app()
 

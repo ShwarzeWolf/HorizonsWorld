@@ -1,5 +1,5 @@
-from horizons.models import Base, Sides
-from horizons.scripts import engine, add_hero, add_story, add_motto, add_battle
+from models import Base, Sides
+from scripts import engine, add_hero, add_story, add_motto, add_battle
 
 
 def create_database():
