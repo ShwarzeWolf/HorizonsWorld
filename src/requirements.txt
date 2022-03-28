@@ -1,3 +1,5 @@
 SQLAlchemy==1.4.32
 psycopg2-binary==2.9.3
 typer==0.3.2
+pyTelegramBotAPI==4.4.0
+python-dotenv==0.20.0

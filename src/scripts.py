@@ -3,6 +3,7 @@ from datetime import date
 from random import choice
 
 import typer
+from dotenv import load_dotenv
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql import functions
@@ -11,8 +12,11 @@ from exceptions import HeroNotFoundException, IncorrectHeroBirthdayException, No
 from logging_setup import logging
 from models import Hero, Sides, Motto, Story, Battle
 
+load_dotenv()
+
 # Getting db connection string, either from environment (for usage in docker) or default for development
-DB_URI = os.getenv("DATABASE_URL", "postgresql+psycopg2://user:rootroot@127.0.0.1:5000/horizons_world_test")
+DB_URI_FOR_DEVELOPMENT = os.getenv("CURRENT_DATABASE_URL")
+DB_URI = os.getenv("DATABASE_URL", DB_URI_FOR_DEVELOPMENT)
 
 engine = create_engine(DB_URI)
 Session = sessionmaker(bind=engine)
