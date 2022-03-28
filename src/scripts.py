@@ -7,7 +7,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql import functions
 
-from exceptions import HeroNotFoundException
+from exceptions import HeroNotFoundException, IncorrectHeroBirthdayException, NoSuchHeroSideException
 from logging_setup import logging
 from models import Hero, Sides, Motto, Story, Battle
 
@@ -30,7 +30,14 @@ def add_hero(name: str,
              power: int = 0) -> None:
     """Adds new hero to the database"""
     if birthday:
-        birthday = date.fromisoformat(birthday)
+        try:
+            birthday = date.fromisoformat(birthday)
+        except ValueError:
+            raise IncorrectHeroBirthdayException
+
+    if side not in [side.name for side in Sides]:
+
+        raise NoSuchHeroSideException
 
     new_hero = Hero(name=name, birthday=birthday, tribe=tribe, side=side, power=power)
     session.add(new_hero)

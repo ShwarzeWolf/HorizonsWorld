@@ -9,7 +9,7 @@ def create_database():
 
 
 def fill_database():
-    """ Database filling
+    """ Fills database with those values:
      - Adds 6 heroes to the database,
      - Adds stories for all of them,
      - Adds mottos for all heroes,

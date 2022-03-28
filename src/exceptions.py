@@ -6,3 +6,13 @@ class HorizonsWorldExceptions(Exception):
 class HeroNotFoundException(HorizonsWorldExceptions):
     """Exception raised then no hero with such id was found in database"""
     pass
+
+
+class IncorrectHeroBirthdayException(HorizonsWorldExceptions):
+    """Exception raised then Hero birthday could not be converted into date"""
+    pass
+
+
+class NoSuchHeroSideException(HorizonsWorldExceptions):
+    """Exception raised then users tries to add Hero side, which is not listed in enum Sides"""
+    pass
