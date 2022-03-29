@@ -27,12 +27,29 @@ app = typer.Typer(help="Small simulation for horizons universe")
 
 
 @app.command()
+def create_statistics_view():
+    """Creates new view named statistics in database. If view with name statistics exists,
+    This script overrides existing with"""
+    with open('create_view.sql', 'r') as create_view_script:
+        session.execute(create_view_script.read())
+
+
+@app.command()
+def get_statistics():
+    """Prints statistics from statistics view.
+    Requires creating statistics view with add-statistics-view command"""
+    statistics = session.execute('SELECT * FROM statistics').fetchall()
+    for measure, value in statistics:
+        print(f'{measure}: {value}')
+
+
+@app.command()
 def add_hero(name: str,
              side: str = Sides.SUN_CARCHA.name,
              birthday: str = None,
              tribe: str = None,
              power: int = 0) -> None:
-    """Adds new hero to the database"""
+    """Adds new hero to the database."""
     if birthday:
         try:
             birthday = date.fromisoformat(birthday)
@@ -53,7 +70,7 @@ def add_hero(name: str,
 @app.command()
 def add_motto(hero_id: int,
               motto: str) -> None:
-    """Adds motto from hero to database"""
+    """Adds motto from hero to database."""
     hero = session.query(Hero).get(hero_id)
 
     if hero:
@@ -95,7 +112,8 @@ def delete_hero(hero_id: int,
                     help="Force deletion without confirmation",
                 ),
                 ) -> None:
-    """Deletes hero from table. With hero deletes users story and all mottos"""
+    """Deletes hero from table.
+    With hero deletes users story and all mottos"""
 
     hero = session.query(Hero).get(hero_id)
 
@@ -112,7 +130,8 @@ def delete_hero(hero_id: int,
 
 @app.command()
 def add_battle(number_of_battles=1) -> None:
-    """Randomly chooses heroes from sides, their mottos and winners"""
+    """Adds battle.
+    Randomly chooses heroes from sides, their mottos and winners"""
     first_warrior = session.query(Hero).order_by(functions.random()).first()
     second_warrior = session.query(Hero).filter(Hero.side != first_warrior.side).order_by(functions.random()).first()
 
@@ -141,7 +160,7 @@ def choose_winner(hero_1: Hero, hero_2: Hero) -> int:
 
 @app.command()
 def database_dump():
-    """Prints all data from database in console"""
+    """Prints all data from database in console."""
     print("Heroes:")
     for hero in session.query(Hero).all():
         print(hero)
